@@ -3,11 +3,12 @@ package Formularios;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
-
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
-public class F_Sobre extends JDialog {
+public class F_Sobre extends JDialog implements ActionListener {
 	
 	private JLabel etImagenGNU;
 	private JLabel etMensaje;
@@ -15,6 +16,12 @@ public class F_Sobre extends JDialog {
 	public F_Sobre(){
 
 		initComponents();
+	}
+	
+	public void actionPerformed(ActionEvent evento){
+
+		this.setVisible(true);
+
 	}
 	
 	private void initComponents() {
@@ -52,7 +59,7 @@ public class F_Sobre extends JDialog {
 		//---------------------------------------------------------------------------------------
         
 		setModal(true);
-		setVisible(true);
+		//setVisible(true);
 	}   
 
 		

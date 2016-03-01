@@ -47,9 +47,9 @@ public class Login extends JFrame {
 				String perfil=rs.getString(6);// recibe el dato del campo perfil de la tabla
 				if (perfil.equals("A")){
 					F_Principal principal=new F_Principal();
-					F_Principal.menuArchivoUsuarios.setEnabled(true);// avilita los menus para administrador
-					F_Principal.menuReportesServicios.setEnabled(true);
-					F_Principal.etUsuario.setText(rs.getString(2));//recibe el campo usuario
+					principal.setHabilitar_menuArchivoUsuarios();
+					principal.setHabilitar_menuReportesServicios();
+					principal.setMostrarUsuario_etUsuario(rs.getString(2));//recibe el campo usuario
 					principal.setVisible(true);
 					this.dispose();
 					
