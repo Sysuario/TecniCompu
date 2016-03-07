@@ -5,8 +5,12 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import javax.swing.*;
+import java.sql.*;
+import CAD.ModuloConexion;
 
 public class F_Usuario extends JInternalFrame implements ActionListener {
 	
@@ -14,7 +18,7 @@ public class F_Usuario extends JInternalFrame implements ActionListener {
 		private JLabel lblNombre;
 		private JLabel lblUsuario;
 		private JLabel lblPass;
-		//private JLabel lblTelefono;
+		private JLabel lblRecordatorio;
 		private JLabel lblPerfil;
 		
 		private JTextField txtNombre;
@@ -29,16 +33,88 @@ public class F_Usuario extends JInternalFrame implements ActionListener {
 		private JButton btnEliminar;
 		
 		
+		Connection conectador=null;
+		PreparedStatement pst = null;
+		ResultSet rs=null;
 		
-		//private JButton btnLogin;
+		
+		
+		
 //----------------------------------------------------------------------------		
 
 	
 	
 	public  F_Usuario(){
 		initComponents();
+		conectador= ModuloConexion.conexionDB();
 		
 	}
+	
+	private void consultar(String buscador){
+		String sql="select * from tbusuarios where login=?";
+		try {
+			pst=conectador.prepareStatement(sql);
+			pst.setString(1, buscador);
+			rs=pst.executeQuery();
+			if (rs.next()) {
+				txtNombre.setText(rs.getString(2));
+				txtUsuario.setText(rs.getString(4));
+				txtPass.setText(rs.getString(5));
+				String perfil=(rs.getString(6));
+				if (perfil.equals("A")) {
+					txtPerfil.setSelectedIndex(2);
+				} else {
+					txtPerfil.setSelectedIndex(1);
+				}
+
+			} else {
+				JOptionPane.showMessageDialog(null, "Usuario no encontrado");
+				txtNombre.setText(null);
+				txtUsuario.setText(null);
+				txtPass.setText(null);
+				txtPerfil.setSelectedIndex(0);
+
+			}
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e);
+		}
+
+
+	}
+	private void crear(){
+		String sql="insert into tbusuarios(usuario,login,pass,nivel) values (?,?,?,?) ";
+		try {
+			pst=conectador.prepareStatement(sql);
+			pst.setString(1, txtNombre.getText());
+			pst.setString(2, txtUsuario.getText());
+			pst.setString(3, txtPass.getText());
+			String perfil=(txtPerfil.getSelectedItem().toString());
+			if (perfil.equals("Administrador")) {
+				pst.setString(4, "A");
+			} else {
+				pst.setString(4, "T");
+			}
+			if ((txtNombre.getText().isEmpty()) || (txtUsuario.getText().isEmpty()) || (txtPass.getText().isEmpty()) || (perfil.equals(""))){
+				JOptionPane.showMessageDialog(null, "*Todos los datos son obligatorios");
+
+			} else {
+				int adicion=pst.executeUpdate();
+				if(adicion>0){
+					JOptionPane.showMessageDialog(null, "Adicionado usuario");
+					txtNombre.setText(null);
+					txtUsuario.setText(null);
+					txtPass.setText(null);
+					txtPerfil.setSelectedIndex(0);
+				}
+			}				
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e);
+		}
+	}
+
+	
 	
 	
 	public void actionPerformed(ActionEvent evento){
@@ -83,12 +159,14 @@ public class F_Usuario extends JInternalFrame implements ActionListener {
 		lblUsuario.setHorizontalAlignment(JLabel.RIGHT);
 		lblUsuario.setFont(fuente);
 		lblUsuario.setBounds(30,50,150,20);
+		
 		this.add(lblUsuario);
 		//------------------------------------------
 
 		//cuadro texto usuario-----------------------
 		txtUsuario=new JTextField();
 		txtUsuario.setBounds(200,50,150,20);
+		//txtUsuario.requestFocus();
 		this.add(txtUsuario);
 		//-----------------------------------------
 
@@ -117,12 +195,21 @@ public class F_Usuario extends JInternalFrame implements ActionListener {
 		//------------------------------------------
 
 		//cuadro texto perfi-----------------------
-		String[] opcPerfil = { "Tecnico", "Administrador"};
+		String[] opcPerfil = { "","Tecnico", "Administrador"};
 		txtPerfil=new JComboBox(opcPerfil);
 		txtPerfil.setBounds(200,110,150,20);
 		txtPerfil.setSelectedIndex(0);
 		this.add(txtPerfil);
 		//-----------------------------------------
+		
+		//etiqueta recordatorio------------------------------------
+		lblRecordatorio = new JLabel();
+		lblRecordatorio.setText("*Todos los datos son obligatorios");
+		lblRecordatorio.setHorizontalAlignment(JLabel.CENTER);
+		lblRecordatorio.setFont(fuente);
+		lblRecordatorio.setBounds(150,250,200,20);
+		this.add(lblRecordatorio);
+		//------------------------------------------
 		
 		//boton de crear------------------------------------
 		btnCrear = new JButton();
@@ -133,11 +220,12 @@ public class F_Usuario extends JInternalFrame implements ActionListener {
 		ImageIcon iconoCrear = new ImageIcon(getClass().getResource("/Iconos/crear.png"));
 		ImageIcon iconoEscalaCrear = new ImageIcon(iconoCrear.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_DEFAULT));
 		btnCrear.setIcon(iconoEscalaCrear);
-		/*btnCrear.addActionListener(new ActionListener(){
+		btnCrear.setToolTipText("Agregar Usuario");
+		btnCrear.addActionListener(new ActionListener(){
 					public void actionPerformed(ActionEvent evento){
-						loguear();     
+						crear();     
 					}
-				}); */    
+				});    
 		this.add(btnCrear);
 		//------------------------------------------
 
@@ -150,11 +238,15 @@ public class F_Usuario extends JInternalFrame implements ActionListener {
 		ImageIcon iconoBuscar = new ImageIcon(getClass().getResource("/Iconos/buscar.png"));
 		ImageIcon iconoEscalaBuscar = new ImageIcon(iconoBuscar.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_DEFAULT));
 		btnBuscar.setIcon(iconoEscalaBuscar);
-		/*btnCrear.addActionListener(new ActionListener(){
+		btnBuscar.setToolTipText("Buscar Usuario");
+		btnBuscar.addActionListener(new ActionListener(){
 							public void actionPerformed(ActionEvent evento){
-								loguear();     
+								String busqueda;  
+							    busqueda = JOptionPane.showInputDialog(null,"¿Usuario a buscar?","Busqueda",JOptionPane.QUESTION_MESSAGE);
+							    consultar(busqueda);
+							    
 							}
-						}); */    
+						}); 
 		this.add(btnBuscar);
 		//------------------------------------------
 
@@ -167,6 +259,7 @@ public class F_Usuario extends JInternalFrame implements ActionListener {
 		ImageIcon iconoActualizar = new ImageIcon(getClass().getResource("/Iconos/edit.png"));
 		ImageIcon iconoEscalaActualizar = new ImageIcon(iconoActualizar.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_DEFAULT));
 		btnActualizar.setIcon( iconoEscalaActualizar);
+		btnActualizar.setToolTipText("Actualizar Usuario");
 		/*btnCrear.addActionListener(new ActionListener(){
 									public void actionPerformed(ActionEvent evento){
 										loguear();     
@@ -184,6 +277,7 @@ public class F_Usuario extends JInternalFrame implements ActionListener {
 		ImageIcon iconoEliminar = new ImageIcon(getClass().getResource("/Iconos/borrar.png"));
 		ImageIcon iconoEscalaEliminar = new ImageIcon(iconoEliminar.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_DEFAULT));
 		btnEliminar.setIcon(iconoEscalaEliminar);
+		btnEliminar.setToolTipText("Eliminar Usuario");
 		/*btnCrear.addActionListener(new ActionListener(){
 											public void actionPerformed(ActionEvent evento){
 												loguear();     
