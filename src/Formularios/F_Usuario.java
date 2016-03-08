@@ -113,11 +113,61 @@ public class F_Usuario extends JInternalFrame implements ActionListener {
 			JOptionPane.showMessageDialog(null, e);
 		}
 	}
+	private void editar	(){
+		String sql="update tbusuarios set usuario=?,login=?,pass=?,nivel=? where login=?";
+		
+		
+		try {
+			pst=conectador.prepareStatement(sql);
+			pst.setString(1, txtNombre.getText());
+			pst.setString(2, txtUsuario.getText());
+			pst.setString(3, txtPass.getText());
+			String perfil=(txtPerfil.getSelectedItem().toString());
+			if (perfil.equals("Administrador")) {
+				pst.setString(4, "A");
+			} else {
+				pst.setString(4, "T");
+			}
+			pst.setString(5, txtUsuario.getText());
+			if ((txtNombre.getText().isEmpty()) || (txtUsuario.getText().isEmpty()) || (txtPass.getText().isEmpty()) || (perfil.equals(""))){
+				JOptionPane.showMessageDialog(null, "*Todos los datos son obligatorios");
 
+			} else {
+				int modificacion=pst.executeUpdate();
+				if(modificacion>0){
+					JOptionPane.showMessageDialog(null, "Usuario Modificado");
+					txtNombre.setText(null);
+					txtUsuario.setText(null);
+					txtPass.setText(null);
+					txtPerfil.setSelectedIndex(0);
+				}
+			}		
+			
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e);
+		}
+	}
+	private void borrar	(){
+		String sql="delete from tbusuarios where login=?";
+		try {
+			pst=conectador.prepareStatement(sql);
+			pst.setString(1, txtUsuario.getText());
+			int eliminacion=pst.executeUpdate();
+			if(eliminacion>0){
+				JOptionPane.showMessageDialog(null, "Usuario Eliminado");
+				txtNombre.setText(null);
+				txtUsuario.setText(null);
+				txtPass.setText(null);
+				txtPerfil.setSelectedIndex(0);
+			}
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e);
+		}
+
+	}
 	
-	
-	
-	public void actionPerformed(ActionEvent evento){
+    public void actionPerformed(ActionEvent evento){
 
 		
 
@@ -222,10 +272,10 @@ public class F_Usuario extends JInternalFrame implements ActionListener {
 		btnCrear.setIcon(iconoEscalaCrear);
 		btnCrear.setToolTipText("Agregar Usuario");
 		btnCrear.addActionListener(new ActionListener(){
-					public void actionPerformed(ActionEvent evento){
-						crear();     
-					}
-				});    
+			public void actionPerformed(ActionEvent evento){
+				crear();     
+			}
+		});    
 		this.add(btnCrear);
 		//------------------------------------------
 
@@ -240,13 +290,13 @@ public class F_Usuario extends JInternalFrame implements ActionListener {
 		btnBuscar.setIcon(iconoEscalaBuscar);
 		btnBuscar.setToolTipText("Buscar Usuario");
 		btnBuscar.addActionListener(new ActionListener(){
-							public void actionPerformed(ActionEvent evento){
-								String busqueda;  
-							    busqueda = JOptionPane.showInputDialog(null,"¿Usuario a buscar?","Busqueda",JOptionPane.QUESTION_MESSAGE);
-							    consultar(busqueda);
-							    
-							}
-						}); 
+			public void actionPerformed(ActionEvent evento){
+				String busqueda;  
+				busqueda = JOptionPane.showInputDialog(null,"¿Usuario a buscar?","Busqueda",JOptionPane.QUESTION_MESSAGE);
+				consultar(busqueda);
+
+			}
+		}); 
 		this.add(btnBuscar);
 		//------------------------------------------
 
@@ -260,11 +310,11 @@ public class F_Usuario extends JInternalFrame implements ActionListener {
 		ImageIcon iconoEscalaActualizar = new ImageIcon(iconoActualizar.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_DEFAULT));
 		btnActualizar.setIcon( iconoEscalaActualizar);
 		btnActualizar.setToolTipText("Actualizar Usuario");
-		/*btnCrear.addActionListener(new ActionListener(){
-									public void actionPerformed(ActionEvent evento){
-										loguear();     
-									}
-								}); */    
+		btnActualizar.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent evento){
+				editar();     
+			}
+		});     
 		this.add(btnActualizar);
 		//------------------------------------------
 		
@@ -278,11 +328,15 @@ public class F_Usuario extends JInternalFrame implements ActionListener {
 		ImageIcon iconoEscalaEliminar = new ImageIcon(iconoEliminar.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_DEFAULT));
 		btnEliminar.setIcon(iconoEscalaEliminar);
 		btnEliminar.setToolTipText("Eliminar Usuario");
-		/*btnCrear.addActionListener(new ActionListener(){
-											public void actionPerformed(ActionEvent evento){
-												loguear();     
-											}
-										}); */    
+		btnEliminar.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent evento){
+				int eliminar = JOptionPane.showConfirmDialog(null,"¿Seguro quieres eliminar usuario?","Atencion",JOptionPane.YES_NO_OPTION);
+				if (eliminar== JOptionPane.YES_NO_OPTION){
+					borrar();
+
+				}    
+			}
+		});     
 		this.add(btnEliminar);
 		//------------------------------------------
 	}

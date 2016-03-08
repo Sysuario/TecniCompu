@@ -72,17 +72,33 @@ public class F_Principal extends JFrame {
 		
 		menuArchivoClientes = new JMenuItem();
 		menuArchivoClientes.setText("Clientes");
+		menuArchivoClientes.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent evento){
+				F_Clientes Fr_Clientes=new F_Clientes();
+				// verificar si es instancia de algun componente que ya este en el jdesktoppane
+				boolean mostrar=true;
+				for (int a=0;a<escritorioTrabajo.getComponentCount();a++){     
+					if( Fr_Clientes.getClass().isInstance(escritorioTrabajo.getComponent(a))){
+						mostrar=false;
+					}
+				}
+				if(mostrar==true){
+					Fr_Clientes.setVisible(true);
+					escritorioTrabajo.add(Fr_Clientes);
+				}
+			}					
+		});
 		menuArchivo.add(menuArchivoClientes);
-		menuArchivoOS = new JMenuItem();
 		
+		menuArchivoOS = new JMenuItem();
 		menuArchivoOS.setText("OS");
 		menuArchivo.add(menuArchivoOS); 
+		
 		menuArchivoUsuarios = new JMenuItem();
 		menuArchivoUsuarios.setText("Usuarios");
 		menuArchivoUsuarios.setEnabled(false);
 		menuArchivoUsuarios.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent evento){
-				
 				F_Usuario Fr_Usuario=new F_Usuario();
 				// verificar si es instancia de algun componente que ya este en el jdesktoppane
 				boolean mostrar=true;
@@ -91,7 +107,6 @@ public class F_Principal extends JFrame {
 						mostrar=false;
 					}
 				}
-				
 				if(mostrar==true){
 					Fr_Usuario.setVisible(true);
 					escritorioTrabajo.add(Fr_Usuario);
