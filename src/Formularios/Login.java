@@ -1,3 +1,11 @@
+/*
+ * este es el formulario del loguin
+ * donde se llama la clase Conexion en el paquete CAD
+ * si pasa la verificacion llama F_Principal
+ * 
+ * 
+ * */
+ 
 package Formularios;
 
 import java.awt.*;
@@ -26,7 +34,7 @@ public class Login extends JFrame {
 	public Login(){//
 
 		initComponents();
-		conectador= ModuloConexion.conexionDB();
+		conectador= ModuloConexion.conexionDB();// llama la instancia de conexion
 		if (conectador!= null){
 			etImagen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Iconos/conectado.png")));
 		}else{
