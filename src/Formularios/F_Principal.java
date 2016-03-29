@@ -10,6 +10,7 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import javax.swing.*;
+import javax.swing.event.InternalFrameListener;
 
 
 
@@ -75,6 +76,7 @@ public class F_Principal extends JFrame {
 		menuArchivoClientes.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent evento){
 				F_Clientes Fr_Clientes=new F_Clientes();
+				Fr_Clientes.addInternalFrameListener(Fr_Clientes);//para que el JInternalFrame cargue los eventos que quiera
 				// verificar si es instancia de algun componente que ya este en el jdesktoppane
 				boolean mostrar=true;
 				for (int a=0;a<escritorioTrabajo.getComponentCount();a++){     

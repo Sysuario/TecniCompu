@@ -1,76 +1,62 @@
 package Formularios;
 
 import java.awt.Color;
-
 import java.awt.Font;
 import java.awt.Insets;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Statement;
-import java.util.*;
-
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.InternalFrameListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 
 import CAD.ModuloConexion;
 
-
-
-public class F_Clientes extends JInternalFrame implements ActionListener {
+public class F_Clientes extends JInternalFrame implements ActionListener, InternalFrameListener {	
 	
-	//VAriables--------------------------- 
+	//VAriables--------------------------- ----------------------------------------------
+	private JLabel lblId;
 	private JLabel lblNombre;
 	private JLabel lblTelefono;
 	private JLabel lblDireccion;
 	private JLabel lblEmail;
-	private JLabel lblRecordatorio;
-	
-
+	private JLabel lblRecordatorio;	
+	private JTextField txtId;
 	private JTextField txtNombre;
 	private JTextField txtTelefono;
 	private JTextArea txtDireccion;
-	private JTextField txtEmail;
-	
-	private JTextField txtBuscador;
-	
-	private JTable tbBuscador;
-	
-
+	private JTextField txtEmail;	
+	private JTextField txtBuscador;	
 	private JButton btnCrear;
 	private JButton btnBuscador;
 	private JButton btnActualizar;
-	private JButton btnEliminar;
-	
+	private JButton btnEliminar;	
 	private JScrollPane scrollTabla;
 	private DefaultTableModel modelo;
-	
-	private Object[][] data;
-	
+	private JTable tbBuscador;
+	//private TableRowSorter textoFiltrador;
+		
 	Connection conectador=null;
 	PreparedStatement pst = null;
-	ResultSet rs=null;	
-	Statement s = null;
-	ResultSetMetaData rsmd=null;
-	
-
-
-	//----------------------------------------------------------------------------		
-
+	ResultSet rs=null;		
+	//----------------------------------------------------------------------------	--------------------	
 	
 	
-	public  F_Clientes(){
-		
+	public  F_Clientes(){		
 		initComponents();
-		conectador= ModuloConexion.conexionDB();
-		
-	}
-		
+		conectador= ModuloConexion.conexionDB();		
+	}		
 	
 	private void crear(){
 		String sql="insert into tbclientes(cliente,direccion,telefono,email) values (?,?,?,?) ";
@@ -101,15 +87,14 @@ public class F_Clientes extends JInternalFrame implements ActionListener {
 	}
 	
 	private void editar	(){
-		String sql="update tbclientes set cliente=?,direccion=?,telefono=?,email=? where cliente=?";
-		
-		
+		String sql="update tbclientes set cliente=?,direccion=?,telefono=?,email=? where idclientes=?";		
 		try {
 			pst=conectador.prepareStatement(sql);
 			pst.setString(1, txtNombre.getText());
 			pst.setString(2, txtDireccion.getText());
 			pst.setString(3, txtTelefono.getText());
 			pst.setString(4, txtEmail.getText());
+			pst.setString(5, txtId.getText());
 			if ((txtNombre.getText().isEmpty()) || (txtTelefono.getText().isEmpty())){
 				JOptionPane.showMessageDialog(null, "*Datos  obligatorios");
 
@@ -117,6 +102,7 @@ public class F_Clientes extends JInternalFrame implements ActionListener {
 				int modificacion=pst.executeUpdate();
 				if(modificacion>0){
 					JOptionPane.showMessageDialog(null, "Cliente Modificado");
+					txtId.setText(null);
 					txtNombre.setText(null);
 					txtDireccion.setText(null);
 					txtTelefono.setText(null);
@@ -129,48 +115,63 @@ public class F_Clientes extends JInternalFrame implements ActionListener {
 		}
 	}
 	
-	public Object[][] Carga_Matriz() {
-		int registros=0;
-		String sql = "Select cliente,direccion,telefono,email FROM tbclientes ";
-		String sql2 = "SELECT COUNT(*) AS total FROM tbclientes";
-		//obtenemos la cantidad de registros existentes en la tabla
-		try{
-			pst = conectador.prepareStatement(sql2);
-			rs = pst.executeQuery();
-			rs.next();
-			registros = rs.getInt("total");
-			rs.close();
-		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, e);
-		}
-		//se crea una matriz con tantas filas y columnas que necesite
-		data = new Object[registros][4];
-		//realizamos la consulta sql y llenamos los datos en la matriz "Object"
-		try{
-			pst = conectador.prepareStatement(sql);
-			rs = pst.executeQuery();
-			int i = 0;
-			while(rs.next()){
-				data[i][0] = rs.getString( "cliente" );
-				data[i][1] = rs.getString( "direccion" );
-				data[i][2] = rs.getString( "telefono" );
-				data[i][3] = rs.getString( "email" );
-				i++;
+	private void borrar	(){
+		String sql="delete from tbclientes where idclientes=?";
+		try {
+			pst=conectador.prepareStatement(sql);
+			pst.setString(1, txtId.getText());
+			int eliminacion=pst.executeUpdate();
+			if(eliminacion>0){
+				JOptionPane.showMessageDialog(null, "Cliente Eliminado");
+				txtId.setText(null);
+				txtNombre.setText(null);
+				txtDireccion.setText(null);
+				txtTelefono.setText(null);
+				txtEmail.setText(null);
 			}
-			rs.close();
+
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, e);
 		}
-		return data;
-	}
 
+	}
+		
+	public DefaultTableModel cargaTabla(){
+		String cSql = "SELECT * FROM tbclientes ORDER BY cliente ASC";
+		try{
+			pst = conectador.prepareStatement(cSql);
+			rs = pst.executeQuery();
+			
+	        while(rs.next())
+	        {
+	            //SE CREA UNA ARRAY QUE SERA UNA DE LAS FILAS D ELA TABLA
+	            Object[] fila = new Object[5];// HAY 4 COLUMNAS EN LA TABLA
+	            // SE RELLENA CADA POSICION DEL ARRAY CON UNA DE LAS COLUMNAS DE LA TABLA EN LA BASE DE DATOS.
+	            for(int i=0;i<5;i++)
+	            {
+	                fila[i]=rs.getObject(i+1); // EL PRIMER INDICE EN RESULTADO ES EL 1, NO EL CERO, POR ESO SE SUMA 1.
+	            }
+	            // SE AÑADE AL MODELO LA FILA COMPLETA
+	            modelo.addRow(fila);
+	        }			
+			
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e);			
+		}
+		 return(modelo);		
+	}	
 
-	
-	public void actionPerformed(ActionEvent evento) {
-		
-		
+	public void limpiarTabla() {
+		for (int i = 0; i < tbBuscador.getRowCount(); i++) {
+	           modelo.removeRow(i);
+	           i-=1;
+	       }
 	}
 	
+	
+	public void actionPerformed(ActionEvent evento) {		
+	}	
+		
 	private void initComponents() {
 		this.setBounds(0,25,600,500);
 		this.setResizable(false);
@@ -185,6 +186,13 @@ public class F_Clientes extends JInternalFrame implements ActionListener {
 		//cuadro texto buscador-----------------------
 		txtBuscador=new JTextField();
 		txtBuscador.setBounds(50,30,250,20);
+		//txtBuscador.addKeyListener(new KeyAdapter() {
+
+		///////////////////////////////////////////////////////////////////
+		//});
+		
+
+		
 		this.add(txtBuscador);
 		//-----------------------------------------
 		
@@ -201,7 +209,8 @@ public class F_Clientes extends JInternalFrame implements ActionListener {
 		btnBuscador.setToolTipText("Buscar");
 		btnBuscador.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent evento){
-				//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX();     
+				
+				   
 			}
 		});    
 		this.add(btnBuscador);
@@ -210,44 +219,67 @@ public class F_Clientes extends JInternalFrame implements ActionListener {
 
 		//tabla buscador--------------------------------------------------------------------------------------
 
-
 		modelo = new DefaultTableModel();
 		tbBuscador = new JTable();
+		tbBuscador.setModel(modelo);
+		tbBuscador.addMouseListener(new MouseAdapter() {			
+			public void mouseClicked(MouseEvent e) {// para al seleccionar fila cargue en los JTextField
+				txtId.setText("");
+				txtNombre.setText("");
+				txtDireccion.setText("");
+				txtTelefono.setText("");
+				txtEmail.setText("");
+				int row = tbBuscador.rowAtPoint(e.getPoint());
+				txtId.setText(tbBuscador.getValueAt(row, 0).toString());
+				txtNombre.setText(tbBuscador.getValueAt(row, 1).toString());
+				txtDireccion.setText(tbBuscador.getValueAt(row, 2).toString());
+				txtTelefono.setText(tbBuscador.getValueAt(row, 3).toString());
+				txtEmail.setText(tbBuscador.getValueAt(row, 4).toString());    
+
+			}
+		});
 		scrollTabla = new JScrollPane();
-
-		String titulos[] = { "Cliente", "Direccion", "Telefono", "Email"};
-		Object informacion[][] =Carga_Matriz();
-
-		tbBuscador = new JTable(informacion, titulos);
+		modelo.addColumn("Id");
+		modelo.addColumn("Cliente");
+		modelo.addColumn("Direccion");
+		modelo.addColumn("Telefono");
+		modelo.addColumn("Email");	        
 		tbBuscador.setEnabled(false);
-		//tbBuscador.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		scrollTabla.setBounds(50,60,500,100);
 		scrollTabla.setViewportView(tbBuscador);
 		this.add(scrollTabla);
+		//--------------------------------------------------------------------------------------------------
 
+		//etiqueta id----------------------------------------------------------------------------
+		lblId = new JLabel();
+		lblId.setText("Id:");
+		lblId.setHorizontalAlignment(JLabel.RIGHT);
+		lblId.setFont(fuente);
+		lblId.setBounds(80,190,150,20);
+		this.add(lblId);
+		//--------------------------------------------------------------------------------------
 
-
-
-		//----------------------------------------------------------------------------------------
+		//cuadro texto id-------------------------------------------------------------------------
+		txtId=new JTextField();
+		txtId.setBounds(250,190,50,20);
+		txtId.setEditable(false);
+		this.add(txtId);
+		//-------------------------------------------------------------------------------------------
 		
-		
-		
-		
-		
-		//etiqueta nombre------------------------------------
+		//etiqueta nombre----------------------------------------------------------------------------
 		lblNombre = new JLabel();
 		lblNombre.setText("* Nombre y Apellido:");
 		lblNombre.setHorizontalAlignment(JLabel.RIGHT);
 		lblNombre.setFont(fuente);
 		lblNombre.setBounds(80,220,150,20);
 		this.add(lblNombre);
-		//------------------------------------------
+		//--------------------------------------------------------------------------------------
 
-		//cuadro texto nombre-----------------------
+		//cuadro texto nombre-------------------------------------------------------------------------
 		txtNombre=new JTextField();
 		txtNombre.setBounds(250,220,250,20);
 		this.add(txtNombre);
-		//-----------------------------------------
+		//-------------------------------------------------------------------------------------------
 		
 		//etiqueta telefono------------------------------------
 		lblTelefono = new JLabel();
@@ -297,11 +329,9 @@ public class F_Clientes extends JInternalFrame implements ActionListener {
 		//cuadro texto email-----------------------
 		txtEmail=new JTextField();
 		txtEmail.setBounds(250,340,250,20);
-		this.add(txtEmail);
-		//-----------------------------------------
-		
-		
+		this.add(txtEmail);				
 		//---------------------------------------------------------------------------------------------------------------
+		
 		//boton de crear------------------------------------
 		btnCrear = new JButton();
 		btnCrear.setBounds(195,380,50,50);
@@ -314,12 +344,13 @@ public class F_Clientes extends JInternalFrame implements ActionListener {
 		btnCrear.setToolTipText("Agregar Usuario");
 		btnCrear.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent evento){
-				crear();     
+				crear();
+				limpiarTabla();
+				cargaTabla();					
 			}
 		});    
 		this.add(btnCrear);
-		//------------------------------------------
-
+		//---------------------------------------------------------------------------------------------------
 		
 
 		//boton de Actualizar------------------------------------
@@ -334,7 +365,9 @@ public class F_Clientes extends JInternalFrame implements ActionListener {
 		btnActualizar.setToolTipText("Actualizar Usuario");
 		btnActualizar.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent evento){
-				editar();     
+				editar(); 
+				limpiarTabla();
+				cargaTabla();
 			}
 		});     
 		this.add(btnActualizar);
@@ -354,23 +387,77 @@ public class F_Clientes extends JInternalFrame implements ActionListener {
 			public void actionPerformed(ActionEvent evento){
 				int eliminar = JOptionPane.showConfirmDialog(null,"¿Seguro quieres eliminar usuario?","Atencion",JOptionPane.YES_NO_OPTION);
 				if (eliminar== JOptionPane.YES_NO_OPTION){
-					//borrar();
+					borrar();
+					limpiarTabla();
+					cargaTabla();
 
 				}    
 			}
 		});     
 		this.add(btnEliminar);
-		//------------------------------------------
+		//--------------------------------------------------------------------------------------------		
 		
-		
-		//etiqueta recordatorio------------------------------------
+		//etiqueta recordatorio-------------------------------------------------------------------------
 		lblRecordatorio = new JLabel();
 		lblRecordatorio.setText("*Datos obligatorios");
 		lblRecordatorio.setHorizontalAlignment(JLabel.CENTER);
 		lblRecordatorio.setFont(fuente);
 		lblRecordatorio.setBounds(200,450,200,20);
 		this.add(lblRecordatorio);
-		//------------------------------------------
+		//--------------------------------------------------------------------------------------------------------
+	}
+	
+	//-------------------Metodos de la interface InternalFrameListener------------------------------------------------
+
+
+	@Override
+	public void internalFrameActivated(InternalFrameEvent arg0) {
+		
+		
+	}
+
+
+	@Override
+	public void internalFrameClosed(InternalFrameEvent arg0) {
+		// TODO Auto-generated method stub
+		
+		
+	}
+
+
+	@Override
+	public void internalFrameClosing(InternalFrameEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void internalFrameDeactivated(InternalFrameEvent arg0) {
+		// TODO Auto-generated method stub
+	
+	}
+
+
+	@Override
+	public void internalFrameDeiconified(InternalFrameEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void internalFrameIconified(InternalFrameEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void internalFrameOpened(InternalFrameEvent arg0) {
+		// TODO Auto-generated method stub
+		cargaTabla();
+		
 	}
 
 }
