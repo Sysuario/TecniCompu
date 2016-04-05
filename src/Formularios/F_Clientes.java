@@ -5,7 +5,8 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
@@ -16,6 +17,7 @@ import java.sql.ResultSet;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 
 import CAD.ModuloConexion;
 
@@ -28,6 +30,7 @@ public class F_Clientes extends JInternalFrame implements ActionListener {
 	private JLabel lblDireccion;
 	private JLabel lblEmail;
 	private JLabel lblRecordatorio;	
+	private JLabel lblBuscar;	
 	private JTextField txtId;
 	private JTextField txtNombre;
 	private JTextField txtTelefono;
@@ -41,7 +44,7 @@ public class F_Clientes extends JInternalFrame implements ActionListener {
 	private JScrollPane scrollTabla;
 	private DefaultTableModel modelo;
 	private JTable tbBuscador;
-	//private TableRowSorter textoFiltrador;
+	private TableRowSorter textoFiltrador;
 		
 	Connection conectador=null;
 	PreparedStatement pst = null;
@@ -168,6 +171,14 @@ public class F_Clientes extends JInternalFrame implements ActionListener {
 	
 	public void actionPerformed(ActionEvent evento) {		
 	}	
+	
+	public void filtro() {
+		//Obtenemos el valor del JTextField "txtBuscador" para el filtro
+		String filtro ="(?i)"+ txtBuscador.getText();// el "(?i)"+ es para que no se sencible a mayusculas y minisculas
+		int columna = 1;// es la columna 1 donde estan los nombres de clientes
+		textoFiltrador.setRowFilter(RowFilter.regexFilter(filtro, columna));
+		
+	}
 		
 	private void initComponents() {
 		this.setBounds(0,25,600,500);
@@ -177,38 +188,17 @@ public class F_Clientes extends JInternalFrame implements ActionListener {
 		this.setClosable(true);
 		this.setResizable(false);
 		this.setLayout(null);
-		Font fuente=new Font("Tahoma",Font.BOLD,11);
-		
-		
-		//cuadro texto buscador-----------------------
-		txtBuscador=new JTextField();
-		txtBuscador.setBounds(50,30,250,20);
-		//txtBuscador.addKeyListener(new KeyAdapter() {
-
-		///////////////////////////////////////////////////////////////////
-		//});
-				
-		this.add(txtBuscador);
-		//-----------------------------------------
+		Font fuente=new Font("Tahoma",Font.BOLD,11);		
 		
 				
-		//boton de buscador------------------------------------
-		btnBuscador = new JButton();
-		btnBuscador.setBounds(300,30,20,20);
-		btnBuscador.setFocusable(false);
-		btnBuscador.setMargin(new Insets(5, 5, 5, 5));
-		btnBuscador.setBackground(Color.WHITE);
-		ImageIcon iconoBuscador = new ImageIcon(getClass().getResource("/Iconos/buscador.png"));
-		ImageIcon iconoEscalaBuscador = new ImageIcon(iconoBuscador.getImage().getScaledInstance(15, 15, java.awt.Image.SCALE_DEFAULT));
-		btnBuscador.setIcon(iconoEscalaBuscador);
-		btnBuscador.setToolTipText("Buscar");
-		btnBuscador.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent evento){
-				
-				   
-			}
-		});    
-		this.add(btnBuscador);
+		//etiqueta de buscar-------------------------------------------------------------------------------------------------------
+		lblBuscar = new JLabel();
+		lblBuscar.setText("Filtro Buscador:");
+		lblBuscar.setHorizontalAlignment(JLabel.LEFT);
+		lblBuscar.setFont(fuente);
+		lblBuscar.setBounds(50,30,100,20);
+		this.add(lblBuscar);
+		
 		//------------------------------------------
 		
 
@@ -400,6 +390,32 @@ public class F_Clientes extends JInternalFrame implements ActionListener {
 		lblRecordatorio.setBounds(200,450,200,20);
 		this.add(lblRecordatorio);
 		//--------------------------------------------------------------------------------------------------------
+		
+		//cuadro texto buscador------------------------------------------------------------------------------------
+		txtBuscador=new JTextField();
+		txtBuscador.setBounds(150,30,250,20);
+		txtBuscador.requestFocus() ;
+		txtBuscador.addKeyListener(new KeyAdapter() {// evento que captura al presinar teclas con sus 3 metodos
+			// en los tres metodos se captura el evento llamando al metodo filto 
+
+			public void keyTyped(final KeyEvent e) {
+				filtro();
+			}
+			public void keyReleased(KeyEvent e) {
+				filtro();
+			}
+			public void keyPressed(KeyEvent e) {
+				filtro();
+			}
+
+		});
+
+		textoFiltrador = new TableRowSorter(modelo);
+		// Añadimos al Jtable el filtro textoFiltrador
+		tbBuscador.setRowSorter(textoFiltrador);
+		this.add(txtBuscador);
+		//-----------------------------------------
 	}
+
 	
 }

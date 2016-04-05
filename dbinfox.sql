@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 27-03-2016 a las 16:15:04
+-- Tiempo de generación: 05-04-2016 a las 06:14:07
 -- Versión del servidor: 5.6.17
 -- Versión de PHP: 5.5.12
 
@@ -29,11 +29,11 @@ SET time_zone = "+00:00";
 CREATE TABLE IF NOT EXISTS `tbclientes` (
   `idclientes` int(100) NOT NULL AUTO_INCREMENT,
   `cliente` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `direccion` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `direccion` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
   `telefono` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `email` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`idclientes`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=14 ;
 
 --
 -- Volcado de datos para la tabla `tbclientes`
@@ -41,7 +41,16 @@ CREATE TABLE IF NOT EXISTS `tbclientes` (
 
 INSERT INTO `tbclientes` (`idclientes`, `cliente`, `direccion`, `telefono`, `email`) VALUES
 (1, 'Linus Torvals', 'Merida', '5555555', 'linus@linus.com'),
-(2, 'Jose Perez', 'Timotes', '6666666', NULL);
+(2, 'Jose Perez', 'Timotes', '6666666', 'm@m.com'),
+(3, 'Luis Perez', 'Ahora', '04165582356', 'ss@sss.com'),
+(4, 'Maria Florez', 'Sector mas alto', '04142869823', 'sss@sss.com'),
+(5, 'Jose Ruiz', 'Merida', '555666688', 'aa@ww.com'),
+(6, 'Juaquin Torres', 'Sector Centro', '777896523', 'i@i.com'),
+(7, 'Santigo Sanchez', 'La luna', '12346789', 'ss@dd.com'),
+(8, 'Daniel Gonzalez', 'El Valle', '2556698', 's@s.com'),
+(9, 'Laura Medina', 'aaaa', '95478632', 'aaaaa'),
+(10, 'Karlos Pereira', 'Lejos', '95741235', '8974123'),
+(12, 'Jose Candales', 'Valera', '55536987', 'aa@sss.com');
 
 -- --------------------------------------------------------
 
@@ -85,15 +94,16 @@ CREATE TABLE IF NOT EXISTS `tbusuarios` (
   `nivel` varchar(1) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`iduser`),
   UNIQUE KEY `login` (`login`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=14 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=17 ;
 
 --
 -- Volcado de datos para la tabla `tbusuarios`
 --
 
 INSERT INTO `tbusuarios` (`iduser`, `usuario`, `telefono`, `login`, `pass`, `nivel`) VALUES
-(1, 'Johnny Florez', '04265785036', 'shoro', '123456', 'A'),
-(13, 'john flo', NULL, 'joharflo', '654321', 'T');
+(1, 'Johnny Florez', '04265785036', 'shoro', '1', 'A'),
+(13, 'john flo', NULL, 'joharflo', '654321', 'T'),
+(16, 'Lus Pez', NULL, 'pex', '951', 'A');
 
 --
 -- Restricciones para tablas volcadas
