@@ -5,26 +5,22 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+
+
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.InternalFrameListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableRowSorter;
 
 import CAD.ModuloConexion;
 
-public class F_Clientes extends JInternalFrame implements ActionListener, InternalFrameListener {	
-	
+public class F_Clientes extends JInternalFrame implements ActionListener {
+
 	//VAriables--------------------------- ----------------------------------------------
 	private JLabel lblId;
 	private JLabel lblNombre;
@@ -54,8 +50,10 @@ public class F_Clientes extends JInternalFrame implements ActionListener, Intern
 	
 	
 	public  F_Clientes(){		
+		conectador= ModuloConexion.conexionDB();
 		initComponents();
-		conectador= ModuloConexion.conexionDB();		
+		cargaTabla();
+				
 	}		
 	
 	private void crear(){
@@ -140,7 +138,7 @@ public class F_Clientes extends JInternalFrame implements ActionListener, Intern
 		String cSql = "SELECT * FROM tbclientes ORDER BY cliente ASC";
 		try{
 			pst = conectador.prepareStatement(cSql);
-			rs = pst.executeQuery();
+			rs = pst.executeQuery();		
 			
 	        while(rs.next())
 	        {
@@ -168,7 +166,6 @@ public class F_Clientes extends JInternalFrame implements ActionListener, Intern
 	       }
 	}
 	
-	
 	public void actionPerformed(ActionEvent evento) {		
 	}	
 		
@@ -190,9 +187,7 @@ public class F_Clientes extends JInternalFrame implements ActionListener, Intern
 
 		///////////////////////////////////////////////////////////////////
 		//});
-		
-
-		
+				
 		this.add(txtBuscador);
 		//-----------------------------------------
 		
@@ -407,57 +402,4 @@ public class F_Clientes extends JInternalFrame implements ActionListener, Intern
 		//--------------------------------------------------------------------------------------------------------
 	}
 	
-	//-------------------Metodos de la interface InternalFrameListener------------------------------------------------
-
-
-	@Override
-	public void internalFrameActivated(InternalFrameEvent arg0) {
-		
-		
-	}
-
-
-	@Override
-	public void internalFrameClosed(InternalFrameEvent arg0) {
-		// TODO Auto-generated method stub
-		
-		
-	}
-
-
-	@Override
-	public void internalFrameClosing(InternalFrameEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void internalFrameDeactivated(InternalFrameEvent arg0) {
-		// TODO Auto-generated method stub
-	
-	}
-
-
-	@Override
-	public void internalFrameDeiconified(InternalFrameEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void internalFrameIconified(InternalFrameEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void internalFrameOpened(InternalFrameEvent arg0) {
-		// TODO Auto-generated method stub
-		cargaTabla();
-		
-	}
-
 }
